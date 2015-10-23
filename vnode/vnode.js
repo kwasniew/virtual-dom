@@ -9,11 +9,25 @@ module.exports = VirtualNode
 var noProperties = {}
 var noChildren = []
 
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length == 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+
 function VirtualNode(tagName, properties, children, key, namespace) {
     this.tagName = tagName
     this.properties = properties || noProperties
     this.children = children || noChildren
     this.key = key != null ? String(key) : undefined
+    if(children.length==1 && children[0].text) {
+        this.key = children[0].text.hashCode();
+    }
     this.namespace = (typeof namespace === "string") ? namespace : null
 
     var count = (children && children.length) || 0
